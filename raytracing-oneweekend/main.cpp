@@ -1,10 +1,25 @@
 #include "color.h"
 #include "vec3.h"
+#include "ray.h"
 
 #include <iostream>
 
 
 int main() {
+
+	// ray
+	// for confusion about real value stuff, see their types: int vs double
+
+	auto aspect_ratio = 16. / 9.; // ideal ratio
+	int image_width = 400;
+
+	// calculate the image height, and ensure that it's at least 1
+	int image_height = static_cast<int>(image_width / aspect_ratio);
+	image_height = (image_height < 1) ? 1 : image_height; // in case height < 1, int will get truncated to 0
+
+	// viewport width < 1 is ok, viewport is a real number (double)
+	auto viewport_height = 2.0;
+	auto viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);
 
 	// Image
 
