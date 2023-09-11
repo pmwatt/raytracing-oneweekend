@@ -4,14 +4,33 @@
 
 #include <iostream>
 
+
+// raytracing sphere
+
+bool hit_sphere(const point3& center, double radius, const ray& r) {
+	vec3 oc = r.origin() - center;
+
+	// based on quadratic formula for finding t that hits the sphere's surface
+	auto a = dot(r.direction(), r.direction()); // ray origin
+	auto b = 2.0 * dot(oc, r.direction()); // ray direction
+	auto c = dot(oc, oc) - radius * radius; // sphere centre
+	
+	// no root/solution for the quadratic eq if discriminant < 0
+	auto discriminant = b * b - 4 * a * c;
+	return (discriminant >= 0);
+}
+
+
 color ray_color(const ray& r) {
-	//return color(0, 0, 0); // return black for now
+	if (hit_sphere(point3(0, 0, -1), 0.5, r))
+		return color(1, 0, 0);
+
 	vec3 unit_direction = unit_vector(r.direction());
 	auto a = 0.5 * (unit_direction.z() + 1.0);
 
 	// lerp
 	// blendedValue = ((1.0-a) * startValue) + (a  * endValue)
-	return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.1, 0.5, 0.3);
+	return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
 }
 
 
