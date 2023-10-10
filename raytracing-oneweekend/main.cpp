@@ -7,30 +7,48 @@
 
 // raytracing sphere
 
-bool hit_sphere(const point3& center, double radius, const ray& r) {
+// returns t (scalar from the camera A to a point along the direction vector b)
+double hit_sphere(const point3& center, double radius, const ray& r) {
 	vec3 oc = r.origin() - center;
 
 	// based on quadratic formula for finding t that hits the sphere's surface
 	auto a = dot(r.direction(), r.direction()); // ray origin
 	auto b = 2.0 * dot(oc, r.direction()); // ray direction
 	auto c = dot(oc, oc) - radius * radius; // sphere centre
-	
-	// no root/solution for the quadratic eq if discriminant < 0
 	auto discriminant = b * b - 4 * a * c;
-	return (discriminant >= 0);
+
+	// no root/solution for the quadratic eq if discriminant < 0
+	if (discriminant < 0) {
+		return -1.0;
+	}
+	else {
+		// root equation, sqrt may be expensive but we'll just do it once
+		// consider +ve and -ve discriminant, only 1 sphere for now
+		return (-b - sqrt(discriminant)) / (2.0 * a);
+	}
 }
 
 
 color ray_color(const ray& r) {
-	if (hit_sphere(point3(0, 0, -1), 0.5, r))
-		return color(1, 0, 0);
+	// t on P(t) = A + bt
+	// sphere center's z can be switched into either {1, -1}, this solution
+	// doesn't distinguish between objects in front/behind the camera (not a feature)
+	auto t = hit_sphere(point3(0, 0, -1), 0.5, r);
+
+	// if intersection t goes away from the camera onto the viewport
+	if (t > 0.0) {
+		vec3 N = unit_vector(r.at(t) - vec3(0, 0, -1)); // sphere normal = intersection direction - sphere centre
+		// don't have light yet, visualize normals with color map by assuming normal is a unit length vector
+		return 0.5 * color(N.x() + 1, N.y() + 1, N.z() + 1); // shade based on position
+	}
 
 	vec3 unit_direction = unit_vector(r.direction());
-	auto a = 0.5 * (unit_direction.z() + 1.0);
+	auto a = 0.5 * (unit_direction.y() + 1.0);
 
 	// lerp
 	// blendedValue = ((1.0-a) * startValue) + (a  * endValue)
 	return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+	
 }
 
 
@@ -74,13 +92,14 @@ int main() {
 
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
+	// writes from left to right, top to bottom
 	for (int j = 0; j < image_height; ++j) {
 		std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
 		for (int i = 0; i < image_width; ++i) {
 			auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v); // for indexing each pixel centre on the viewport
 			auto ray_direction = pixel_center - camera_centre; // consider ray dir as a unit vector
+			
 			ray r(camera_centre, ray_direction); // P(t) = A +bt
-
 			color pixel_color = ray_color(r);
 			write_color(std::cout, pixel_color);
 

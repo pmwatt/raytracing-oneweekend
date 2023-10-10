@@ -13,7 +13,7 @@ public:
 	point3 origin() const { return orig; }
 	vec3 direction() const { return dir; }
 
-	// P(t) = A + tB
+	// P(t) = A + tB at some t
 	point3 at(double t) const {
 		return orig + t * dir;
 	}
