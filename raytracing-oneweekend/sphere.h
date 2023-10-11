@@ -34,9 +34,8 @@ public:
 
 		// update hit record
 		rec.t = root;
-		rec.p = r.at(rec.t);
-		rec.normal = (rec.p - center) / radius; // (P-C)/radius = unit normal vector
-
+		vec3 outward_normal = (rec.p - center) / radius; // (P-C)/radius unit vector
+		rec.set_face_normal(r, outward_normal); // also distinguish front/back face for the normal
 		return true;
 	}
 
