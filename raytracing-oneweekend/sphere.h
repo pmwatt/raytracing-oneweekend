@@ -12,7 +12,7 @@ public:
 
 	// modifies hit record rec
 	// true if ray r hits this sphere while its t is between [tmin, tmax]
-	bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const override
+	bool hit(const ray& r, interval ray_t, hit_record& rec) const override
 	{
 		vec3 oc = r.origin() - center;
 
@@ -25,11 +25,11 @@ public:
 		if (discriminant < 0) return false; // no quadratic root
 		auto sqrtd = sqrt(discriminant);
 
-		// find the nearest root within [tmin, tmax] range, -ve discriminant one
+		// find the nearest root within specified range, +ve discriminant one preferred
 		auto root = (-half_b - sqrtd) / a;
-		if (root <= ray_tmin || ray_tmax <= root) // testing false condition
-			root = (-half_b + sqrtd) / a; // bigger = always the nearest root?
-			if (root <= ray_tmin || ray_tmax <= root)
+		if (!ray_t.surrounds(root))
+			root = (-half_b + sqrtd) / a; // bigger +ve = always the root closest to the camera
+			if (!ray_t.surrounds(root))
 				return false;
 
 		// update hit record
