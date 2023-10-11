@@ -24,7 +24,7 @@ public:
 		objects.push_back(object);
 	}
 
-	bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec)
+	bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_record& rec) const
 	{
 		hit_record temp_rec;
 		bool hit_anything = false;
