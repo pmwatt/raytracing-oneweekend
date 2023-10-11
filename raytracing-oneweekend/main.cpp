@@ -12,10 +12,10 @@ double hit_sphere(const point3& center, double radius, const ray& r) {
 	vec3 oc = r.origin() - center;
 
 	// based on quadratic formula for finding t that hits the sphere's surface
-	auto a = dot(r.direction(), r.direction()); // ray origin
-	auto b = 2.0 * dot(oc, r.direction()); // ray direction
-	auto c = dot(oc, oc) - radius * radius; // sphere centre
-	auto discriminant = b * b - 4 * a * c;
+	auto a = r.direction().length_squared(); // ray origin
+	auto half_b = dot(oc, r.direction()); // ray direction
+	auto c = oc.length_squared() - radius * radius; // sphere centre
+	auto discriminant = half_b*half_b - a * c;
 
 	// no root/solution for the quadratic eq if discriminant < 0
 	if (discriminant < 0) {
@@ -24,7 +24,7 @@ double hit_sphere(const point3& center, double radius, const ray& r) {
 	else {
 		// root equation, sqrt may be expensive but we'll just do it once
 		// consider +ve and -ve discriminant, only 1 sphere for now
-		return (-b - sqrt(discriminant)) / (2.0 * a);
+		return (-half_b - sqrt(discriminant)) / a;
 	}
 }
 
